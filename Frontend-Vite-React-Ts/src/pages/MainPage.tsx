@@ -6,13 +6,11 @@ import jwtLogo from "../assets/jwt.svg";
 interface MainPageProps {
   welcomeText?: string;
   appName?: string;
-  showNavbar?: boolean;
 }
 
 const MainPage: React.FC<MainPageProps> = ({
   welcomeText = "Bienvenido",
   appName = "Mi App",
-  showNavbar = true,
 }) => {
   const { auth } = useAuth();
   const navigate = useNavigate();
