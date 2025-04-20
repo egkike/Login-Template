@@ -12,6 +12,9 @@ const pool = new Pool({
   password: DB_PASSWORD,
   port: DB_PORT,
   database: DB_NAME,
+  ssl: {
+    rejectUnauthorized: false, // Permite conexiones SSL sin verificar el certificado
+  },
 });
 
 export class DbModel {
