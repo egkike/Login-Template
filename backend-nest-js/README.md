@@ -72,4 +72,5 @@ npm install @nestjs/common @nestjs/typeorm typeorm pg @nestjs/jwt bcrypt @nestjs
 
 npm install winston winston-daily-rotate-file
 npm install helmet
+npm install @nestjs/swagger
 ```

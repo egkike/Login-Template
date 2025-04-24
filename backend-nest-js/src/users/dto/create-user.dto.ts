@@ -1,34 +1,56 @@
 import {
   IsString,
   IsNotEmpty,
-  MinLength,
   IsEmail,
+  MinLength,
   IsNumber,
   IsOptional,
+  Min,
+  Max,
 } from 'class-validator';
-import { IsStrongPassword } from '../../common/decorators/strong-password.decorator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// Esta clase se utiliza para validar los datos de entrada al crear un nuevo usuario
-// en la base de datos. Utiliza decoradores de class-validator para asegurar
-// que los datos cumplen con ciertos criterios antes de ser procesados.
+// Este decorador se utiliza para validar los datos de entrada en la creación de un usuario
+// y para documentar la API utilizando Swagger.
+// Se utiliza en el controlador de usuarios para validar los datos de entrada
+// y generar la documentación de la API.
 export class CreateUserDto {
+  @ApiProperty({ description: 'Username', example: 'testuser' })
   @IsString()
-  @IsNotEmpty({ message: 'Username is required' })
+  @IsNotEmpty()
   @MinLength(4, { message: 'Username too short' })
   username: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(6, { message: 'Password too short' })
-  @IsStrongPassword()
-  password: string;
-
+  @ApiProperty({ description: 'Email', example: 'test@example.com' })
   @IsEmail()
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsNotEmpty()
   email: string;
 
+  @ApiPropertyOptional({ description: 'Full name', example: 'Test User' })
   @IsString()
   @IsOptional()
   @MinLength(4, { message: 'Fullname too short' })
   fullname?: string;
+
+  @ApiProperty({
+    description: 'Password (minimum 6 characters)',
+    example: 'Test123',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Password too short' })
+  password: string;
+
+  @ApiPropertyOptional({ description: 'User level', example: 1 })
+  @IsNumber()
+  @IsOptional()
+  @Min(0, { message: 'Level must be at least 0' })
+  level?: number;
+
+  @ApiPropertyOptional({ description: 'Active status (0 or 1)', example: 0 })
+  @IsNumber()
+  @IsOptional()
+  @Min(0, { message: 'Active must be at least 0' })
+  @Max(1, { message: 'Active must be at most 1' })
+  active?: number;
 }

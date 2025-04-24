@@ -8,11 +8,11 @@ import {
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
-// Este filtro de excepción maneja las excepciones HTTP lanzadas por el servidor
-// y formatea la respuesta de error de manera uniforme.
-// En producción, no se exponen detalles de errores internos al cliente.
-// En su lugar, se registra el error en el servidor para depuración.
-// En desarrollo, se proporciona información detallada sobre el error al cliente.
+// Este filtro de excepción se encarga de manejar las excepciones HTTP
+// y formatear la respuesta de error de manera consistente.
+// Dependiendo del entorno (producción o desarrollo), se pueden mostrar
+// diferentes mensajes de error para evitar exponer información sensible.
+// En producción, se ocultan los detalles del error interno y se muestra un mensaje genérico.
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(private readonly configService: ConfigService) {}
@@ -34,11 +34,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         errorMessage = exceptionResponse;
       } else if (
         typeof exceptionResponse === 'object' &&
-        'message' in exceptionResponse
+        exceptionResponse !== null
       ) {
-        errorMessage = Array.isArray(exceptionResponse.message)
-          ? exceptionResponse.message.join(', ')
-          : exceptionResponse.message;
+        // Manejar casos donde exceptionResponse tiene una propiedad message
+        const message = (exceptionResponse as any).message;
+        errorMessage = Array.isArray(message)
+          ? message.join(', ')
+          : message || 'An error occurred';
       }
     }
 

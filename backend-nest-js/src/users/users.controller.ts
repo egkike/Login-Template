@@ -2,12 +2,11 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
-  Delete,
   Body,
+  Patch,
+  Param,
+  Delete,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -15,59 +14,121 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { Request } from 'express';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiCookieAuth,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 
+// Este código es un controlador de NestJS para manejar las operaciones CRUD de los usuarios.
+// Utiliza decoradores de NestJS para definir las rutas y la documentación de la API.
+// El controlador se encarga de recibir las solicitudes HTTP y delegar la lógica de negocio al servicio de usuarios.
+// El controlador también utiliza guardias de autenticación JWT para proteger las rutas que requieren autenticación.
+@ApiTags('Users')
 @Controller('api')
-@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('session')
-  async getSession(@Req() req: Request) {
-    const tokenData = (req as any).session?.tokenData;
-    if (!tokenData) {
-      return { error: (req as any).session?.error || 'Unauthorized' };
-    }
-    return tokenData;
+  @Post('user/create')
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully',
+    type: Object,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Get('users')
-  async getUsers() {
-    return this.usersService.getUsers();
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({ status: 200, description: 'List of users', type: [Object] })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  findAll(@Req() req: any) {
+    return this.usersService.findAll(req);
   }
 
-  @Post('user/getbyid')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async getById(@Body('id') id: string) {
-    return this.usersService.getById(id);
+  @Get('user/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get a user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID (UUID)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({ status: 200, description: 'User details', type: Object })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 
-  @Post('user/create')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  @Patch('user/update/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Update a user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID (UUID)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: Object,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 
-  @Patch('user/update')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async updateUser(
-    @Body('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.updateUser(id, updateUserDto);
-  }
-
-  @Patch('user/chgpass')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async changePassword(
-    @Body('id') id: string,
+  @Patch('user/chgpass/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Change user password by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID (UUID)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({ type: ChangePasswordDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+    type: Object,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  changePassword(
+    @Param('id') id: string,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.usersService.changePassword(id, changePasswordDto);
   }
 
-  @Delete('user/delete')
-  async deleteUser(@Body('id') id: string) {
-    return this.usersService.deleteUser(id);
+  @Delete('user/delete/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Delete a user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID (UUID)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }

@@ -5,22 +5,30 @@ import {
   Res,
   UsePipes,
   ValidationPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
-// AuthController maneja las rutas de autenticación
-// y se encarga de la lógica de inicio de sesión y cierre de sesión
-// y de la gestión de cookies de sesión.
+@ApiTags('Authentication')
 @Controller('api')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOperation({ summary: 'Log in a user' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged in successfully',
+    type: Object,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid username/email or password',
+  })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -40,12 +48,5 @@ export class AuthController {
     });
 
     return publicData;
-  }
-
-  @Post('logout')
-  @UseGuards(JwtAuthGuard)
-  logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('session_token');
-    return { message: 'Logged out' };
   }
 }

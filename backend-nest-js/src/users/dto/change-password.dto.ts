@@ -1,15 +1,16 @@
 import { IsString, IsNotEmpty, MinLength } from 'class-validator';
-import { IsStrongPassword } from '../../common/decorators/strong-password.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
-// Este decorador se utiliza para validar que la contraseña cumpla con los requisitos de seguridad
-// como longitud mínima, uso de mayúsculas, minúsculas, números y caracteres especiales.
-// La validación se realiza en el decorador IsStrongPassword, que se encuentra en el archivo strong-password.decorator.ts
-// El decorador IsStrongPassword se encarga de verificar que la contraseña cumpla con los requisitos de seguridad
-// y lanza un error si no lo hace.
+// Este DTO se utiliza para validar la entrada de datos al cambiar la contraseña de un usuario
+// Asegúrate de que la contraseña cumpla con los requisitos mínimos
+// como longitud y no esté vacía
 export class ChangePasswordDto {
+  @ApiProperty({
+    description: 'New password (minimum 6 characters)',
+    example: 'NewPass123',
+  })
   @IsString()
-  @IsNotEmpty({ message: 'Password is required' })
+  @IsNotEmpty()
   @MinLength(6, { message: 'Password too short' })
-  @IsStrongPassword()
   password: string;
 }

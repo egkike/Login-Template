@@ -5,12 +5,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import * as bcrypt from 'bcrypt';
 
+// Este servicio maneja la lógica de negocio relacionada con los usuarios
+// como la creación, actualización y eliminación de usuarios.
+// También maneja la verificación de la existencia de usuarios y el hash de contraseñas.
+// Además, se encarga de la interacción con la base de datos a través del repositorio de TypeORM.
+// El servicio es inyectable y puede ser utilizado en otros componentes de la aplicación.
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,134 +23,66 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getUsers() {
-    const users = await this.userRepository.find({
-      select: [
-        'id',
-        'username',
-        'email',
-        'fullname',
-        'level',
-        'active',
-        'createdate',
-      ],
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const { username, email, password, fullname, level, active } =
+      createUserDto;
+
+    // Verificar si el usuario o email ya existe
+    const existingUser = await this.userRepository.findOne({
+      where: [{ username }, { email }],
     });
-    if (!users.length) {
-      throw new NotFoundException('No users found');
+    if (existingUser) {
+      throw new BadRequestException('Username or email already exists');
     }
-    return users;
+
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = this.userRepository.create({
+      username,
+      email,
+      fullname,
+      password: hashedPassword,
+      level: level ?? 1, // Ajustado al default de la tabla
+      active: active ?? 0, // Ajustado al default de la tabla
+    });
+
+    return this.userRepository.save(user);
   }
 
-  async getById(id: string) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      select: [
-        'id',
-        'username',
-        'email',
-        'fullname',
-        'level',
-        'active',
-        'createdate',
-      ],
-    });
+  async findAll(req: any): Promise<User[]> {
+    // Aquí puedes usar req.user para filtrar según el usuario autenticado, si es necesario
+    return this.userRepository.find();
+  }
+
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
     return user;
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const { username, email, password, fullname } = createUserDto;
-
-    // Verificar si el username ya existe
-    const existingUser = await this.userRepository.findOne({
-      where: { username },
-    });
-    if (existingUser) {
-      throw new BadRequestException('Username already exists');
-    }
-
-    // Verificar si el email ya existe
-    const existingEmail = await this.userRepository.findOne({
-      where: { email },
-    });
-    if (existingEmail) {
-      throw new BadRequestException('Email already exists');
-    }
-
-    // Encriptar contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Crear nuevo usuario
-    const user = this.userRepository.create({
-      username,
-      password: hashedPassword,
-      email,
-      fullname,
-    });
-
-    const savedUser = await this.userRepository.save(user);
-    const { password: _, ...publicData } = savedUser;
-    return publicData;
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id); // Reutiliza findOne para verificar existencia
+    Object.assign(user, updateUserDto);
+    return this.userRepository.save(user);
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<User> {
+    const user = await this.findOne(id);
+    const { password } = changePasswordDto;
 
-    await this.userRepository.update(id, updateUserDto);
-    const updatedUser = await this.userRepository.findOne({
-      where: { id },
-      select: [
-        'id',
-        'username',
-        'email',
-        'fullname',
-        'level',
-        'active',
-        'createdate',
-      ],
-    });
-    return updatedUser;
+    // Hashear la nueva contraseña
+    user.password = await bcrypt.hash(password, 10);
+    return this.userRepository.save(user);
   }
 
-  async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const hashedPassword = await bcrypt.hash(changePasswordDto.password, 10);
-    await this.userRepository.update(id, {
-      password: hashedPassword,
-      active: 1,
-    });
-
-    const updatedUser = await this.userRepository.findOne({
-      where: { id },
-      select: [
-        'id',
-        'username',
-        'email',
-        'fullname',
-        'level',
-        'active',
-        'createdate',
-      ],
-    });
-    return updatedUser;
-  }
-
-  async deleteUser(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    await this.userRepository.delete(id);
-    return { message: 'User deleted successfully' };
+  async remove(id: string): Promise<void> {
+    const user = await this.findOne(id);
+    await this.userRepository.remove(user);
   }
 }
