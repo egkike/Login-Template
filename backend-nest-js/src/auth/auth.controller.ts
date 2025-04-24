@@ -11,6 +11,10 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
+// Este código es parte de un controlador de autenticación en NestJS.
+// Se encarga de manejar las solicitudes de inicio de sesión de los usuarios.
+// El controlador utiliza el servicio de autenticación para procesar las credenciales
+// y devolver un token de sesión si las credenciales son válidas.
 @ApiTags('Authentication')
 @Controller('api')
 export class AuthController {

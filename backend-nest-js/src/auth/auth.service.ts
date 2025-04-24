@@ -7,6 +7,8 @@ import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 
+// Este servicio maneja la autenticación de los usuarios
+// y la generación de tokens JWT para el acceso a la API.
 @Injectable()
 export class AuthService {
   constructor(

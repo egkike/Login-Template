@@ -5,6 +5,10 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
+// Este modelo representa la tabla de usuarios en la base de datos
+// y define las propiedades de cada usuario.
+// Se utiliza la librería TypeORM para interactuar con la base de datos
+// y se define la entidad User con sus respectivas columnas y tipos de datos.
 @Entity('users') // Especificar explícitamente el nombre de la tabla
 export class User {
   @PrimaryGeneratedColumn('uuid')
