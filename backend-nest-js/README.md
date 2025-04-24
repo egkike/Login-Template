@@ -62,10 +62,14 @@ bootstrap();
 ```
 
 ### Prueba ejecutando:
+```bash
 npm run start:dev
+```
 
 ## Instalar dependecias:
+```bash
 npm install @nestjs/common @nestjs/typeorm typeorm pg @nestjs/jwt bcrypt @nestjs/cookie-parser express-rate-limit class-validator class-transformer
 
 npm install winston winston-daily-rotate-file
 npm install helmet
+```
