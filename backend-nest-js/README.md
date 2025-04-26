@@ -1,11 +1,11 @@
-## Crear el proyecto (utilicé npm):
+## Crear el proyecto Backend con NestJS-TS:
 
 ```bash
 $ nest new Backend-NestJS
 ```
 
 ## Configurar el entorno:
-### dotenv para manejar variables de entorno:
+### Instalar dotenv para manejar variables de entorno:
 
 ```bash
 npm install @nestjs/config

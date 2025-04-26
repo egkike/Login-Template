@@ -17,7 +17,7 @@ async function bootstrap() {
   // Configurar CORS
   const ACCEPTED_ORIGINS =
     configService.get<string>('NODE_ENV') === 'production'
-      ? ['http://localhost:5173']
+      ? ['http://localhost:5173'] // Solo permitir localhost:5173 en producción
       : [
           'http://localhost:8080',
           'http://localhost:3000',

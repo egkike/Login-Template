@@ -1,8 +1,8 @@
 {
   "name": "backend-nest-js",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Backend API for the project using NestJS",
+  "author": "Kike Garcia",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

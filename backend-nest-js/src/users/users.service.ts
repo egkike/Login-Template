@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { Users } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -19,11 +19,11 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Users)
+    private readonly userRepository: Repository<Users>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<Users> {
     const { username, email, password, fullname, level, active } =
       createUserDto;
 
@@ -50,12 +50,12 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async findAll(req: any): Promise<User[]> {
+  async findAll(req: any): Promise<Users[]> {
     // Aquí puedes usar req.user para filtrar según el usuario autenticado, si es necesario
     return this.userRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<Users> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -63,7 +63,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<Users> {
     const user = await this.findOne(id); // Reutiliza findOne para verificar existencia
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
@@ -72,7 +72,7 @@ export class UsersService {
   async changePassword(
     id: string,
     changePasswordDto: ChangePasswordDto,
-  ): Promise<User> {
+  ): Promise<Users> {
     const user = await this.findOne(id);
     const { password } = changePasswordDto;
 

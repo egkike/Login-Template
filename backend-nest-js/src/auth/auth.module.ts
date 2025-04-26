@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { User } from '../users/entities/user.entity';
+import { Users } from '../users/entities/user.entity';
 import { RateLimiterMiddleware } from '../common/middlewares/rate-limiter.middleware';
 
 // Este módulo maneja la autenticación de usuarios, incluyendo el registro y el inicio de sesión.
@@ -12,7 +12,7 @@ import { RateLimiterMiddleware } from '../common/middlewares/rate-limiter.middle
 // El módulo también aplica un middleware de limitación de tasa para proteger la ruta de inicio de sesión.
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Users]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
