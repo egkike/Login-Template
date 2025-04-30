@@ -1,5 +1,9 @@
 # Proyecto Login-Template:
-Este es un proyecto base que hace Login de Usuarios y manejo de sesiones. 
+Este es un proyecto que hace un Login-Logout y Administración básica de Usuarios con manejo de sesiones. 
+
+El Backend se encarga de la conexión a la base de datos (API Rest), la creación y actualización de un Token (JWT) para guardar los datos disponibles para la sesión, el uso de una Cookie para mantener el Token durante la sesión y el manejo de errores, utiliando Middlewares. 
+
+El Frontend interactua con el Backend haciendo las peticiones (Axios) a las rutas correspondientes de cada API Rest y muestra los resultados y respuestas en pantalla. Se puede conectar independientemente con cualquiera de ambos Backends de forma transparente.
 
 ## Backend-NodeJS:
 Backend en NodeJS-Express-JavaScrip que se conecta con base de datos (DB-Local, MySql y PostgreSql) y maneja sesiones de usuarios con JWT y Cookies.
